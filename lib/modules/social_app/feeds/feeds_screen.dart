@@ -1,60 +1,74 @@
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:testo/layout/cubit/cubit.dart';
+import 'package:testo/layout/cubit/states.dart';
+import 'package:testo/models/post_model.dart';
 import 'package:testo/shared/styles/colors.dart';
 
 class FeedsScreen extends StatelessWidget
 {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: BouncingScrollPhysics(),
-      child: Column(
-        children:
-        [
-          Card(
-            clipBehavior: Clip.antiAliasWithSaveLayer,
-            elevation: 5.0,
-            margin: EdgeInsets.all(8.0),
-            child: Stack(
-              alignment: AlignmentDirectional.bottomStart,
-              children: [
-                Image(
-                  image: NetworkImage(
-                    'https://img.freepik.com/free-photo/teen-girl-portrait-close-up_23-2149231222.jpg?t=st=1649185211~exp=1649185811~hmac=aef1b9e315f3ca2a931b12992c7a3f1db49a6c1fa2c1f05a425cd9ed3b773ae9&w=740',
+    return BlocConsumer<SocialCubit, SocialStates>(
+      listener: (context, state) {},
+      builder: (context, state) {
+        return ConditionalBuilder(
+          condition: SocialCubit.get(context).posts.length > 0 && SocialCubit.get(context).userModel != null,
+          builder: (context) => SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            child: Column(
+              children:
+              [
+                Card(
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                  elevation: 5.0,
+                  margin: EdgeInsets.all(8.0),
+                  child: Stack(
+                    alignment: AlignmentDirectional.bottomStart,
+                    children: [
+                      Image(
+                        image: NetworkImage(
+                          'https://img.freepik.com/free-photo/teen-girl-portrait-close-up_23-2149231222.jpg?t=st=1649185211~exp=1649185811~hmac=aef1b9e315f3ca2a931b12992c7a3f1db49a6c1fa2c1f05a425cd9ed3b773ae9&w=740',
+                        ),
+                        fit: BoxFit.cover,
+                        height: 200.0,
+                        width: double.infinity,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'communicate with friends',
+                          style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  fit: BoxFit.cover,
-                  height: 200.0,
-                  width: double.infinity,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'communicate with friends',
-                    style: Theme.of(context).textTheme.subtitle1!.copyWith(
-                      color: Colors.white,
-                    ),
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) => buildPostItem(SocialCubit.get(context).posts[index], context, index),
+                  separatorBuilder: (context, index) => SizedBox(
+                    height: 8.0,
                   ),
+                  itemCount: SocialCubit.get(context).posts.length,
+                ),
+                SizedBox(
+                  height: 8.0,
                 ),
               ],
             ),
           ),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemBuilder: (context, index) => buildPostItem(context),
-            separatorBuilder: (context, index) => SizedBox(
-              height: 8.0,
-            ),
-            itemCount: 10,
-          ),
-          SizedBox(
-            height: 8.0,
-          ),
-        ],
-      ),
+          fallback: (context) => Center(child: CircularProgressIndicator()),
+        );
+      },
     );
   }
 
-  Widget buildPostItem(context) => Card(
+  Widget buildPostItem(PostModel model, context, index) => Card(
     clipBehavior: Clip.antiAliasWithSaveLayer,
     elevation: 5.0,
     margin: EdgeInsets.symmetric(
@@ -63,6 +77,7 @@ class FeedsScreen extends StatelessWidget
     child: Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children:
         [
           Row(
@@ -71,7 +86,7 @@ class FeedsScreen extends StatelessWidget
               CircleAvatar(
                 radius: 25.0,
                 backgroundImage: NetworkImage(
-                  'https://img.freepik.com/free-photo/wonderful-girl-with-wavy-hair-modern-plaid-light-clothes-holding-pink-flowers-looking-into-camera-isolated-background_197531-28770.jpg?w=740&t=st=1649187086~exp=1649187686~hmac=185a121d7d070e04c99d65727ad8af37accf9bf309b16af7d6d7d78e9f3a8d03',
+                  '${model.image}',
                 ),
               ),
               SizedBox(
@@ -85,7 +100,7 @@ class FeedsScreen extends StatelessWidget
                     Row(
                       children: [
                         Text(
-                          'Mazen Shawky',
+                          '${model.name}',
                           style: TextStyle(
                             height: 1.4,
                           ),
@@ -101,7 +116,7 @@ class FeedsScreen extends StatelessWidget
                       ],
                     ),
                     Text(
-                      'January 21, 2022 at 11:00 pm',
+                      '${model.dateTime}',
                       style: Theme.of(context).textTheme.caption!.copyWith(
                         height: 1.4,
                       ),
@@ -132,7 +147,7 @@ class FeedsScreen extends StatelessWidget
             ),
           ),
           Text(
-            'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
+            '${model.text}',
             style: Theme.of(context).textTheme.subtitle1,
           ),
           // Padding(
@@ -187,7 +202,8 @@ class FeedsScreen extends StatelessWidget
           //     ),
           //   ),
           // ),
-          Padding(
+          if(model.postImage!= '')
+            Padding(
             padding: const EdgeInsetsDirectional.only(
               top: 15.0,
             ),
@@ -200,7 +216,7 @@ class FeedsScreen extends StatelessWidget
                 ),
                 image: DecorationImage(
                   image: NetworkImage(
-                    'https://img.freepik.com/free-photo/teen-girl-portrait-close-up_23-2149231222.jpg?t=st=1649185211~exp=1649185811~hmac=aef1b9e315f3ca2a931b12992c7a3f1db49a6c1fa2c1f05a425cd9ed3b773ae9&w=740',
+                    '${model.postImage}',
                   ),
                   fit: BoxFit.cover,
                 ),
@@ -232,7 +248,8 @@ class FeedsScreen extends StatelessWidget
                             width: 5.0,
                           ),
                           Text(
-                            '120',
+                            '${SocialCubit.get(context).likes[index]}',
+                            // '0',
                             style: Theme.of(context).textTheme.caption,
                           ),
                         ],
@@ -260,7 +277,7 @@ class FeedsScreen extends StatelessWidget
                             width: 5.0,
                           ),
                           Text(
-                            '120 comments',
+                            '0 comments',
                             style: Theme.of(context).textTheme.caption,
                           ),
                         ],
@@ -293,7 +310,7 @@ class FeedsScreen extends StatelessWidget
                       CircleAvatar(
                         radius: 18.0,
                         backgroundImage: NetworkImage(
-                          'https://img.freepik.com/free-photo/wonderful-girl-with-wavy-hair-modern-plaid-light-clothes-holding-pink-flowers-looking-into-camera-isolated-background_197531-28770.jpg?w=740&t=st=1649187086~exp=1649187686~hmac=185a121d7d070e04c99d65727ad8af37accf9bf309b16af7d6d7d78e9f3a8d03',
+                          '${SocialCubit.get(context).userModel!.image}',
                         ),
                       ),
                       SizedBox(
@@ -327,7 +344,9 @@ class FeedsScreen extends StatelessWidget
                     ),
                   ],
                 ),
-                onTap: (){},
+                onTap: (){
+                  SocialCubit.get(context).likePost(SocialCubit.get(context).postsId[index]);
+                },
               ),
             ],
           ),
