@@ -1,3 +1,4 @@
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:testo/shared/components/components.dart';
@@ -41,120 +42,124 @@ class NewPostScreen extends StatelessWidget {
               ),
             ],
           ),
-          body: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              children:
-              [
-                if(state is SocialCreatePostLoadingState)
-                  LinearProgressIndicator(),
-                if(state is SocialCreatePostLoadingState)
-                  SizedBox(
-                  height: 10.0,
-                  ),
-                Row(
-                  children:
-                  [
-                    CircleAvatar(
-                      radius: 25.0,
-                      backgroundImage: NetworkImage(
-                        'https://img.freepik.com/free-photo/wonderful-girl-with-wavy-hair-modern-plaid-light-clothes-holding-pink-flowers-looking-into-camera-isolated-background_197531-28770.jpg?w=740&t=st=1649187086~exp=1649187686~hmac=185a121d7d070e04c99d65727ad8af37accf9bf309b16af7d6d7d78e9f3a8d03',
-                      ),
-                    ),
+          body: ConditionalBuilder(
+            condition: SocialCubit.get(context).userModel != null,
+            builder: (context) => Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children:
+                [
+                  if(state is SocialCreatePostLoadingState)
+                    LinearProgressIndicator(),
+                  if(state is SocialCreatePostLoadingState)
                     SizedBox(
-                      width: 15.0,
+                      height: 10.0,
                     ),
-                    Expanded(
-                      child: Text(
-                        'Mazen Shawky',
-                        style: TextStyle(
-                          height: 1.4,
+                  Row(
+                    children:
+                    [
+                      CircleAvatar(
+                        radius: 25.0,
+                        backgroundImage: NetworkImage(
+                          SocialCubit.get(context).userModel!.image,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                Expanded(
-                  child: TextFormField(
-                    controller: textController,
-                    decoration: InputDecoration(
-                      hintText: 'what is on your mind ...',
-                      border: InputBorder.none,
+                      SizedBox(
+                        width: 15.0,
+                      ),
+                      Expanded(
+                        child: Text(
+                          SocialCubit.get(context).userModel!.name,
+                          style: TextStyle(
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: TextFormField(
+                      controller: textController,
+                      decoration: InputDecoration(
+                        hintText: 'what is on your mind ...',
+                        border: InputBorder.none,
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 20.0,
-                ),
-                if(SocialCubit.get(context).postImage != null)
-                  Stack(
-                  alignment: AlignmentDirectional.topEnd,
-                  children: [
-                    Container(
-                      height: 140.0,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4.0,),
-                        image: DecorationImage(
-                          image: FileImage(postImage!) as ImageProvider,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: ()
-                      {
-                        SocialCubit.get(context).removePostImage();
-                      },
-                      icon: CircleAvatar(
-                        radius: 20.0,
-                        child: Icon(
-                          Icons.close,
-                          size: 16.0,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 20.0,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: ()
-                        {
-                          SocialCubit.get(context).getPostImage();
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children:
-                          [
-                            Icon(
-                              Icons.image_outlined,
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                  if(SocialCubit.get(context).postImage != null)
+                    Stack(
+                      alignment: AlignmentDirectional.topEnd,
+                      children: [
+                        Container(
+                          height: 140.0,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4.0,),
+                            image: DecorationImage(
+                              image: FileImage(postImage!) as ImageProvider,
+                              fit: BoxFit.cover,
                             ),
-                            SizedBox(
-                              width: 5.0,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: ()
+                          {
+                            SocialCubit.get(context).removePostImage();
+                          },
+                          icon: CircleAvatar(
+                            radius: 20.0,
+                            child: Icon(
+                              Icons.close,
+                              size: 16.0,
                             ),
-                            Text(
-                              'add photo',
-                            ),
-                          ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: ()
+                          {
+                            SocialCubit.get(context).getPostImage();
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children:
+                            [
+                              Icon(
+                                Icons.image_outlined,
+                              ),
+                              SizedBox(
+                                width: 5.0,
+                              ),
+                              Text(
+                                'add photo',
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: TextButton(onPressed: (){},
-                        child: Text(
-                          '# tags',
+                      Expanded(
+                        child: TextButton(onPressed: (){},
+                          child: Text(
+                            '# tags',
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
+            fallback: (context) => Center(child: CircularProgressIndicator()),
           ),
         );
       },
